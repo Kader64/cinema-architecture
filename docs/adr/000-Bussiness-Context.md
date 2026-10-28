@@ -8,8 +8,13 @@ The primary objective of this project is to demonstrate the evolution and trade-
 hile the initial phase will simulate a smaller scale (handling just a few locations), the system must be designed with scalability in mind to support future expansion. Finally project will become a national cinema network (approx. 40 locations, similar to Helios/Multikino).
 
 ## Decision
-I will design and implement a backend system for a nationwide cinema network (including movie catalog browsing and a seat reservation system).
-A key architectural constraint is that **the frontend client will be built only once and remain exactly the same**, while the **backend will be implemented in three separate architectures** (Monolith, Microservices, and Event-Driven).
+We will design and implement a fullstack (backend + frontend) system for a nationwide cinema network (including movie catalog browsing and a seat reservation system). 
+
+To evaluate architectural trade-offs, the backend will be implemented in three architectural paradigms while retaining a single frontend page:
+- **Modular Monolith**
+- **Microservices**
+- **Event-Driven Architecture**
+
 
 ## Consequences
 -   API Contract strictness: Keeping the frontend constant forces the backend implementations to adhere to a strict, consistent API contract. It proves that massive architectural refactoring on the server side is completely transparent to the end-user.

@@ -1,0 +1,193 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+// Custom Enums
+Enum seat_type {
+  STANDARD
+  VIP
+  ACCESSIBLE
+  COUPLE
+}
+
+Enum age_rating {
+  G
+  PG
+  PG_13
+  R
+  NC_17
+  EIGHTEEN_PLUS
+}
+
+Enum audio_type {
+  DUBBING
+  SUBTITLES
+  ORIGINAL
+  VOICEOVER
+}
+
+Enum projection_format {
+  TWO_D
+  THREE_D
+  IMAX
+}
+
+Enum order_status {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+}
+
+Enum ticket_category {
+  REGULAR
+  REDUCED
+}
+
+
+// Table Definitions
+
+Table Cities {
+  id integer [pk, increment]
+  name varchar [not null, unique]
+  slug varchar [not null, unique]
+}
+
+Table Cinema {
+  id integer [pk, increment]
+  city_id integer [not null]
+  name varchar [not null]
+  address text [not null]
+  phone_number varchar
+  created_at timestamp [default: `now()`]
+}
+
+Table Auditorium {
+  id integer [pk, increment]
+  cinema_id integer [not null]
+  name varchar [not null, note: "e.g. Hall 1 or IMAX Hall"]
+  total_seats integer [not null, note: "Sync with seat in backend"]
+  supports_3d boolean [default: false]
+  supports_imax boolean [default: false]
+  created_at timestamp [default: `now()`]
+}
+
+Table Seat {
+  id integer [pk, increment]
+  auditorium_id integer [not null]
+  row_label varchar(5) [not null]
+  seat_number integer [not null]
+  type seat_type [default: 'STANDARD']
+  is_active boolean [default: true]
+
+  indexes {
+    (auditorium_id, row_label, seat_number) [unique]
+  }
+}
+
+Table Movies {
+  id integer [pk, increment]
+  title varchar [not null]
+  original_title varchar
+  description text
+  duration_minutes integer [not null]
+  release_date date
+  rating age_rating [not null, default: 'PG_13']
+  poster_url text
+  trailer_url text
+  is_currently_showing boolean [default: true]
+  created_at timestamp [default: `now()`]
+}
+
+Table Genres {
+  id integer [pk, increment]
+  name varchar [not null, unique]
+}
+
+Table MovieGenres {
+  movie_id integer [not null]
+  genre_id integer [not null]
+
+  indexes {
+    (movie_id, genre_id) [pk]
+  }
+}
+
+Table Events {
+  id integer [pk, increment]
+  title varchar [not null]
+  slug varchar [not null, unique]
+  description text
+  banner_url text
+  start_date date [not null]
+  end_date date [not null]
+  is_active boolean [default: true]
+}
+
+Table Screenings {
+  id integer [pk, increment]
+  movie_id integer [not null]
+  auditorium_id integer [not null]
+  start_time timestamp [not null]
+  end_time timestamp [not null]
+  format projection_format [default: 'TWO_D']
+  audio audio_type [default: 'SUBTITLES']
+  language varchar [default: 'English']
+  base_price decimal(8,2) [not null]
+  created_at timestamp [default: `now()`]
+}
+
+Table Orders {
+  id uuid [pk, default: `gen_random_uuid()`]
+  screening_id integer [not null]
+  customer_email varchar [not null]
+  customer_phone varchar
+  total_amount decimal(8,2) [not null]
+  status order_status [default: 'PENDING']
+  payment_reference varchar
+  expires_at timestamp [not null]
+  created_at timestamp [default: `now()`]
+}
+
+Table ReservedSeats {
+  id integer [pk, increment]
+  order_id uuid [not null]
+  screening_id integer [not null]
+  seat_id integer [not null]
+  ticket_category ticket_category [default: 'REGULAR']
+  price decimal(8,2) [not null]
+
+  indexes {
+    (screening_id, seat_id) [unique]
+  }
+}
+
+Table Tickets {
+  id uuid [pk, default: `gen_random_uuid()`]
+  order_id uuid [not null]
+  reserved_seat_id integer [not null, unique]
+  qr_code_hash varchar [not null, unique]
+  is_used boolean [default: false]
+  issued_at timestamp [default: `now()`]
+}
+
+
+// Relationships
+
+Ref: Cities.id < Cinema.city_id
+Ref: Cinema.id < Auditorium.cinema_id
+Ref: Auditorium.id < Seat.auditorium_id
+
+Ref: Movies.id < MovieGenres.movie_id
+Ref: Genres.id < MovieGenres.genre_id
+
+Ref: Movies.id < Screenings.movie_id
+Ref: Auditorium.id < Screenings.auditorium_id
+
+Ref: Screenings.id < Orders.screening_id
+
+Ref: Orders.id < ReservedSeats.order_id
+Ref: Screenings.id < ReservedSeats.screening_id
+Ref: Seat.id < ReservedSeats.seat_id
+
+Ref: Orders.id < Tickets.order_id
+Ref: ReservedSeats.id - Tickets.reserved_seat_id
