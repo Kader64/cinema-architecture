@@ -1,29 +1,21 @@
-import { useEffect, useState } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout/Layout";
 
-function App() {
-  const [data, setData] = useState(null);
-
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const response = await fetch("https://localhost:7261/api/test");
-        
-        if (!response.ok) {
-          throw new Error(`Błąd HTTP! Stan: ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log("Pobrane dane:", result);
-        setData(result);
-      } catch (error) {
-        console.error("Błąd pobierania danych:", error);
-      }
-    };
-
-    getData();
-  }, []);
-
-  return <div>Hello Cinema App! {data && JSON.stringify(data)}</div>;
+export default function App() {
+  return (
+    <Routes>
+      <Route element={<Layout />}>
+      {/* TODO: Start adding pages, first main page for schedule/now-playing page */}
+        <Route index
+          element={
+            <section className="mx-auto max-w-7xl px-4 py-12">
+              <h1 className="font-display text-4xl">Welcome to CinemaNet</h1>
+              <p className="mt-2 text-ink-300">Your cinema experience starts here.</p>
+            </section>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+    </Routes>
+  );
 }
-
-export default App;

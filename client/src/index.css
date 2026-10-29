@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Bebas Neue', Impact, 'Arial Narrow', sans-serif;
+
+  --color-ink-950: #08080b;
+  --color-ink-900: #101015;
+  --color-ink-800: #17171f;
+  --color-ink-700: #272732;
+  --color-ink-500: #737385;
+  --color-ink-300: #a9a9bb;
+  --color-ink-100: #ececf2;
+
+  --color-accent-400: #fb5877;
+  --color-accent-500: #e11d48;
+  --color-accent-600: #be123c;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-ink-950 text-ink-100 font-sans antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent-400);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-accent-500 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-accent-500;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-ink-700 bg-ink-800 px-5 py-2.5 text-sm font-semibold text-ink-100 transition-colors hover:bg-ink-700;
+  }
+  .surface {
+    @apply rounded-2xl border border-ink-700 bg-ink-900;
+  }
+}
